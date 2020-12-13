@@ -145,7 +145,7 @@ describe('Zone', function() {
     });
 
     for (const t of Object.keys(types)) {
-      it(`1 should serve CNAME + glue as answers for type: ${t}`, () => {
+      it(`should serve CNAME + glue as answers for type: ${t}`, () => {
         if (t === 'NS' || t === 'ANY' || t === 'UNKNOWN' || t === 'SOA')
           this.skip(); // TODO
 
