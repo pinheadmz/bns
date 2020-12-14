@@ -67,6 +67,8 @@ describe('Zone', function() {
     zone.setOrigin(domain);
     // A record for TLD (Common in Handshake, not in DNS)
     zone.fromString(`${domain} 21600 IN A 10.20.30.40`);
+    // MX record
+    zone.fromString(`${domain} 21600 IN MX 10 my.mail.server.`);
     // TXT record for TLD
     zone.fromString(`${subdomainWithText} 21600 IN TXT "subdomain-with-text"`);
     // TXT for wildcard
@@ -89,6 +91,17 @@ describe('Zone', function() {
       assert(msg.additional.length === 0);
       assert(msg.answer.length === 1);
       assert(msg.answer[0].data.address = '10.20.30.40');
+    });
+
+    it('should serve MX record', () => {
+      const msg = zone.resolve(domain, types.MX);
+      assert(msg.code === codes.NOERROR);
+      assert(msg.aa);
+      assert(msg.authority.length === 0);
+      assert(msg.additional.length === 0);
+      assert(msg.answer.length === 1);
+      assert(msg.answer[0].data.mx = 'my.mail.server');
+      assert(msg.answer[0].data.priority = '10');
     });
 
     it('should serve SOA record for missing type', () => {
@@ -141,7 +154,7 @@ describe('Zone', function() {
         assert(msg.aa);
         assert(msg.additional.length === 0);
 
-        if (t !== 'A') {
+        if (!['A', 'MX'].includes(t)) {
           assert(msg.authority.length === 1);
           assert(msg.answer.length === 1);
           assert(msg.answer[0].type === types.CNAME);
@@ -150,6 +163,7 @@ describe('Zone', function() {
 
           let cname = false;
           let a = false;
+          let mx = false;
           for (const an of msg.answer) {
             if (an.type === types.CNAME)
               cname = true;
@@ -158,9 +172,15 @@ describe('Zone', function() {
               a = true;
               assert (an.data.address === '10.20.30.40');
             }
+
+            if (an.type === types.MX) {
+              mx = true;
+              assert (an.data.mx === 'my.mail.server');
+              assert (an.data.preference === 10);
+            }
           }
           assert(cname);
-          assert(a);
+          assert(a ^ mx);
         }
       });
     }
