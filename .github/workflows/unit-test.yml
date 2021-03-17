@@ -4,7 +4,8 @@
 name: Unit Tests
 
 on:
-    # Only for PR against master branch
+    push:
+        branches: [master]
     pull_request:
         branches: [master]
 
