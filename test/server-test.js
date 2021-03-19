@@ -33,6 +33,13 @@ if (process.browser)
 
 describe('Server', function() {
   for (const inet6 of [true, false]) {
+    const hosts = [
+      ['localhost.', '127.0.0.1']
+    ];
+
+    if (inet6)
+      hosts.push(['localhost.', '::1']);
+
     describe(`inet6: ${inet6}`, function() {
       if (inet6) {
         this.skip();
@@ -327,10 +334,7 @@ describe('Server', function() {
           cd: false,
           edns: true,
           dnssec: true,
-          hosts: [
-            ['localhost.', '127.0.0.1'],
-            ['localhost.', '::1']
-          ],
+          hosts,
           servers: ['127.0.0.1:5301']
         });
 
@@ -371,10 +375,7 @@ describe('Server', function() {
           cd: false,
           edns: true,
           dnssec: true,
-          hosts: [
-            ['localhost.', '127.0.0.1'],
-            ['localhost.', '::1']
-          ],
+          hosts,
           servers: ['127.0.0.1:5302']
         });
 
